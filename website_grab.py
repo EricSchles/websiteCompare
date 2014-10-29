@@ -31,23 +31,28 @@ class Grabber:
         text = r.text.encode("ascii","ignore")
         if text != previous:
             with open(name+now+".html","w") as f:
-                f.write(r.text)
+                f.write(text)
 
     def map_website(self,base_url,depth=15):
-        r = requests.get(base_url)
+        #r = requests.get(base_url)
         links = []
         urlname = base_url.split("//")[1].split("/")[0]
-        return mapper(base_url,urlname,links,depth)
+        return self.mapper(base_url,urlname,links,depth)
 
     def mapper(self,url,urlname,links,depth):
+        if not url.startswith("http"):
+            return links
         if depth <= 0:
             return links
-        r = requests.get(url)
-        html = lxml.html.fromstr(r.text)
+        try:
+            r = requests.get(url)
+        except requests.exceptions.TooManyRedirects:
+            return links
+        html = lxml.html.fromstring(r.text)
         tmp = html.xpath("//a/@href")
         for link in tmp:
             if urlname in link:
-                tmp_links = mapper(link,urlname,links,depth-1)
+                tmp_links = self.mapper(link,urlname,links,depth-1)
                 links += [link for link in tmp_links if not link in links]
                 if not link in links:
                     links.append(link)
