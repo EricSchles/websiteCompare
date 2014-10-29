@@ -18,7 +18,7 @@ class Grabber:
 
     def webpage_grab(self,url):
         r = requests.get(url)
-        name = "_".join(r.url.split("/")[-2:]).replace(".html")
+        name = "_".join(r.url.split("/")[-2:]).replace(".html","")
         if not os.path.exists(name):
             os.mkdir(name)
         os.chdir(name)
@@ -27,8 +27,9 @@ class Grabber:
         html_files = [file for file in glob(os.path.join(folder,'*.html'))]
         html_files.sort(key=os.path.getmtime)
         most_recently_edited = html_files[-1]
-        previous = open(most_recently_edited,"r")
-        if r.text != previous:
+        previous = open(most_recently_edited,"r").read()
+        text = r.text.encode("ascii","ignore")
+        if text != previous:
             with open(name+now+".html","w") as f:
                 f.write(r.text)
 
