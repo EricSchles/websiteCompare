@@ -5,25 +5,25 @@ from glob import glob
 import lxml.html
 
 class Grabber:
-    def save(self,r):
+    def save(self,baseurl,r):
         if not os.path.exists("pages"):
             os.mkdir("pages")
         os.chdir("pages")
-        name = "".join(r.url.split("/")[-2:])
+        name = "_".join(baseurl.split("/")[-2:]).replace(".html","")
         with open(name+".html","w") as f:
             text = r.text.encode("ascii","ignore")
             f.write(text)
         os.chdir("../")
         return name+".html"
 
-    def webpage_grab(self,url):
+    def webpage_grab(self,baseurl,url):
         r = requests.get(url)
-        name = "_".join(r.url.split("/")[-2:]).replace(".html","")
-        if not os.path.exists(name):
-            os.mkdir(name)
-        os.chdir(name)
+        name = "_".join(baseurl.split("/")[-2:]).replace(".html","")
+        if not os.path.exists("pages"):
+            os.mkdir("pages")
+        os.chdir("pages")
         now = time.strftime("%m_%d_%y_%H")
-        folder = os.path.join(os.getcwd(), name)
+        folder = os.getcwd() 
         html_files = [file for file in glob(os.path.join(folder,'*.html'))]
         html_files.sort(key=os.path.getmtime)
         most_recently_edited = html_files[-1]
